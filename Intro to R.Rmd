@@ -52,19 +52,31 @@ Nest and species characteristics for North American passerines
 
 Amy R. Moore, as a student at Grinnell College in 1999, wanted to study the relationship between species characteristics and the type of nest a bird builds, using data collected from available sources. For the study, she collected data by species for 84 separate species of North American passerines. **It is A data frame with 84 observations on the following 12 variables as shown below:**
 
++----------------+----------------------------------------------------------------------------------------+
 | **`Species`**  | Latin species name                                                                     |
-|----------------|----------------------------------------------------------------------------------------|
++================+========================================================================================+
 | **`Common`**   | Common species name                                                                    |
++----------------+----------------------------------------------------------------------------------------+
 | **`Page`**     | Page in a bird manual describing the species                                           |
++----------------+----------------------------------------------------------------------------------------+
 | **`Length`**   | Mean body length for the species (in cm)                                               |
++----------------+----------------------------------------------------------------------------------------+
 | **`Nesttype`** | Type of nest                                                                           |
++----------------+----------------------------------------------------------------------------------------+
 | **`Location`** | Location of nest                                                                       |
++----------------+----------------------------------------------------------------------------------------+
 | **`No.eggs`**  | Number of eggs                                                                         |
++----------------+----------------------------------------------------------------------------------------+
 | **`Color`**    | Egg color (**`0`**=plain/solid or **`1`**=speckled/spotted)                            |
++----------------+----------------------------------------------------------------------------------------+
 | **`Incubate`** | Mean length of time (in days) the species incubates eggs in the nest                   |
++----------------+----------------------------------------------------------------------------------------+
 | **`Nestling`** | Mean length of time (in days) the species cares for babies in the nest until fledged   |
++----------------+----------------------------------------------------------------------------------------+
 | **`Totcare`**  | Total care time = Incubate+Nestling                                                    |
++----------------+----------------------------------------------------------------------------------------+
 | **`Closed`**   | 1=closed nest (pendant, spherical, cavity, crevice, burrow), 0=open nest (saucer, cup) |
++----------------+----------------------------------------------------------------------------------------+
 
 # Basic functions to learn about your data
 
@@ -157,23 +169,23 @@ BirdNest %>%
 
 **Note: You may want to set some criteria for variable inclusion when you have a lot of variables in your data.**
 
-+--------------+--------------------------------------------------------+
-| usage        | summary                                                |
-+:=============+:=======================================================+
-| -            | Select everything but                                  |
-+--------------+--------------------------------------------------------+
-| :            | Select range                                           |
-+--------------+--------------------------------------------------------+
-| contains()   | Select columns whose name contains a character string  |
-+--------------+--------------------------------------------------------+
-| start_with() | Select columns whose name starts with a string         |
-+--------------+--------------------------------------------------------+
-| ends_with()  | Select columns whose name ends with a string           |
-+--------------+--------------------------------------------------------+
-| matches()    | Select columns whose name matches a regular expression |
-+--------------+--------------------------------------------------------+
-| one_of()     | Select columns whose names are in a group of names     |
-+--------------+--------------------------------------------------------+
++------------------+--------------------------------------------------------+
+| usage            | summary                                                |
++:=================+:=======================================================+
+| -                | Select everything but                                  |
++------------------+--------------------------------------------------------+
+| :                | Select range                                           |
++------------------+--------------------------------------------------------+
+| contains()       | Select columns whose name contains a character string  |
++------------------+--------------------------------------------------------+
+| start_with()     | Select columns whose name starts with a string         |
++------------------+--------------------------------------------------------+
+| ends_with()      | Select columns whose name ends with a string           |
++------------------+--------------------------------------------------------+
+| matches()        | Select columns whose name matches a regular expression |
++------------------+--------------------------------------------------------+
+| one_of()         | Select columns whose names are in a group of names     |
++------------------+--------------------------------------------------------+
 
 ```{r}
 # Select variables contain "nest" (default case insensitive)
@@ -338,3 +350,40 @@ ggplot2 is probably the MOST popular plotting package in R, and heavily influenc
 1.  start with ggplot function - specify data and "aesthetics"
 2.  add "geoms" which are the type of plot (points, lines, bars, etc)
 3.  add "scales" which further specify the aesthetics: axes, colors, sizes
+
+### Bar Plot
+
+```{r}
+library(ggplot2)
+
+BirdNest %>% 
+  ggplot() +
+  aes(x = Location) +
+  geom_bar(fill = "#112446") +
+  labs(x = "Location", y = "Freqency", title = "A bar Chart Of Location") +
+  theme_minimal()
+
+```
+
+### Scatter Plot
+
+```{r}
+BirdNest %>% 
+  ggplot() +
+  aes(x = Nestling, y = Totcare) +
+  geom_point(shape = "circle", size = 1.5, colour = "#2053AF") +
+  labs(y = "Total Care", title = "A Scatter Plot Plot") +
+  theme_bw()
+```
+
+Bar Plot
+
+```{r}
+BirdNest %>% 
+ggplot() +
+ aes(x = Nesttype, y = No.eggs) +
+ geom_col(fill = "#440154") +
+ labs(x = "Nest Type", y = "Number Of Eggs", 
+ title = "A bar Chart Of Netst Type and Number Of Eggs") +
+ theme_minimal()
+```
