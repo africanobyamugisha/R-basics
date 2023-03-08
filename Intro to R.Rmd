@@ -8,3 +8,333 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
+# Create workspace
+
+1.  Create project to a given folder
+2.  Get the required resources to the folder (data)
+3.  Create and save an RMD that you will work in
+
+# install the required R packages
+
+```{r install, eval=FALSE}
+
+install.packages("readr") 
+
+install.packages("dplyr")
+
+install.packages("gtsummary")
+
+install.packages("kablExtra")
+
+# OR
+
+install.packages(c("readr", "dplyr")) # install multiple packages
+```
+
+Note:
+
+1.  you can install using the panes there fom GUI of R studio install in Packages panel (refer to our note for instructions)
+
+2.  You only need to install the package once, call it everytime when you want to use it.
+
+# import data
+
+\* use command (depend on file type)
+
+```{r}
+BirdNest <- readr::read_csv("BirdNest.csv")  # read data from csv file
+```
+
+# Introduction to BirdNest
+
+Nest and species characteristics for North American passerines
+
+Amy R. Moore, as a student at Grinnell College in 1999, wanted to study the relationship between species characteristics and the type of nest a bird builds, using data collected from available sources. For the study, she collected data by species for 84 separate species of North American passerines. **It is A data frame with 84 observations on the following 12 variables as shown below:**
+
+| **`Species`**  | Latin species name                                                                     |
+|----------------|----------------------------------------------------------------------------------------|
+| **`Common`**   | Common species name                                                                    |
+| **`Page`**     | Page in a bird manual describing the species                                           |
+| **`Length`**   | Mean body length for the species (in cm)                                               |
+| **`Nesttype`** | Type of nest                                                                           |
+| **`Location`** | Location of nest                                                                       |
+| **`No.eggs`**  | Number of eggs                                                                         |
+| **`Color`**    | Egg color (**`0`**=plain/solid or **`1`**=speckled/spotted)                            |
+| **`Incubate`** | Mean length of time (in days) the species incubates eggs in the nest                   |
+| **`Nestling`** | Mean length of time (in days) the species cares for babies in the nest until fledged   |
+| **`Totcare`**  | Total care time = Incubate+Nestling                                                    |
+| **`Closed`**   | 1=closed nest (pendant, spherical, cavity, crevice, burrow), 0=open nest (saucer, cup) |
+
+# Basic functions to learn about your data
+
+```{r}
+
+summary(BirdNest) # describe data
+```
+
+```{r}
+sapply(BirdNest, class) # check the type of each variable in BirdNest
+```
+
+```{r}
+dim(BirdNest)  # dimension
+colnames(BirdNest) # column names
+```
+
+```{r}
+BirdNest[!complete.cases(BirdNest),] # return all rows with missing value in BirdNest; use "complete.cases()" for non-missings; use "!" for negation (NOT)
+```
+
+```{r}
+class(BirdNest)  # the type of the data set 
+```
+
+```{r}
+head(BirdNest)  # first six rows
+```
+
+```{r}
+BirdNest$Location %>% 
+  table()
+# return all unique value with frequency in Location variable of BirdNest
+
+# Or, for a better output
+library(gtsummary)
+
+BirdNest$Location %>% 
+  tbl_summary()
+
+```
+
+```{r}
+unique(BirdNest$Location) # return all unique value in factor
+```
+
+```{r}
+# return the number of unique value in factor
+BirdNest$Location %>% 
+  unique() %>% 
+  length()
+
+```
+
+```{r}
+BirdNest$Location %>% 
+  is.na() %>% 
+  table() %>% 
+
+BirdNest$Totcare %>% 
+  is.na() %>% 
+  table()
+
+```
+
+# Data Wrangling
+
+## select
+
+To select columns or drop columns of a data frame, use select()
+
+### Select desired variables
+
+```{r}
+#Select four columns: Length, Nesttype, Location, No.eggs from original data, return the first six rows.
+library(dplyr)
+BirdNest %>% 
+  select(Length, Nesttype, Location, No.eggs) %>% 
+  head()
+```
+
+### Drop undesired variables
+
+```{r}
+#Remove two columns: Species and Common from original data  
+BirdNest %>% 
+  select(-c(Species,Common)) %>% 
+  head()
+```
+
+**Note: You may want to set some criteria for variable inclusion when you have a lot of variables in your data.**
+
++--------------+--------------------------------------------------------+
+| usage        | summary                                                |
++:=============+:=======================================================+
+| -            | Select everything but                                  |
++--------------+--------------------------------------------------------+
+| :            | Select range                                           |
++--------------+--------------------------------------------------------+
+| contains()   | Select columns whose name contains a character string  |
++--------------+--------------------------------------------------------+
+| start_with() | Select columns whose name starts with a string         |
++--------------+--------------------------------------------------------+
+| ends_with()  | Select columns whose name ends with a string           |
++--------------+--------------------------------------------------------+
+| matches()    | Select columns whose name matches a regular expression |
++--------------+--------------------------------------------------------+
+| one_of()     | Select columns whose names are in a group of names     |
++--------------+--------------------------------------------------------+
+
+```{r}
+# Select variables contain "nest" (default case insensitive)
+BirdNest %>% 
+  select(contains("nest")) %>% 
+  head()
+```
+
+### filter
+
+Use **`filter`** to select rows that meet criteria.
+
+```{r}
+library(dplyr)
+#Select rows with Length more than 30
+BirdNest %>% 
+  filter(Length > 30)
+
+#Select rows with No.eggs more than 6 and Location in "decid" 
+BirdNest %>% 
+  filter(No.eggs > 6 & Location == "decid")
+
+```
+
+**Try Out:** Could you filter the rows with levels contains "Jay" in Common column? (hint: use grep function)
+
+```{r}
+BirdNest %>% 
+  filter(grepl("Jay",Common))
+
+```
+
+### mutate
+
+When you want to create new columns based on the values in existing columns, for example, do calculation using existing variables, we'll use the dplyr function mutate().
+
+```{r}
+
+head(mutate(BirdNest, ratio = Incubate/Totcare))
+head(mutate(BirdNest, ratio = Incubate/Totcare, inverse = 1/ratio))
+head(mutate(BirdNest, cumsum_total = cumsum(Totcare)))
+head(mutate(BirdNest, nor_Nest = Nestling/mean(Nestling, na.rm=T))) # na.rm=T removes the missing value when calculating mean 
+```
+
+```{r}
+BirdNest %>% 
+  mutate(ratio = Incubate/Totcare) %>% 
+  head()
+```
+
+```{r}
+BirdNest %>% 
+  mutate(ratio = Incubate/Totcare, inverse = 1/ratio) %>% 
+  head()
+```
+
+```{r}
+BirdNest %>% 
+  mutate(cumsum_total = cumsum(Totcare)) %>% 
+  head()
+```
+
+```{r}
+BirdNest %>% 
+  mutate(nor_Nest = Nestling/mean(Nestling, na.rm=T)) %>% 
+  head()
+# na.rm=T removes the missing value when calculating mean 
+```
+
+**Note: You can create variables with criteria**
+
+| usage               | summary                        |
+|:--------------------|:-------------------------------|
+| pmin(), pmax()      | Elementwise minimum or maximum |
+| cummin(), cummax()  | Cumulative minimum and maximum |
+| cumsum(), cumprod() | Cumulative sum and product     |
+
+### arrange
+
+Arrange the rows of your data based according to the preferred order in the specified variable.
+
+```{r}
+# order the data by ascending length
+BirdNest %>% 
+  arrange(Length) %>% 
+  head()
+BirdNest %>% 
+  arrange(Length, No.eggs)
+```
+
+**Try Out:** Could you output top 10 observations with largest length?
+
+```{r}
+BirdNest %>%
+  arrange(desc(Length) ) %>% 
+  head(n = 10)
+
+```
+
+### Summarise
+
+When you want to create a summary across the data, `summarise()` function in dplyr package can be used. Generally, it often combines with group_by, which creates a summary by subgroups.
+
+```{r}
+# to create a summery about average, variance of lengt, and count distinct egg color 
+BirdNest %>% 
+  summarise(
+    mean_length = mean(Length), 
+    var_Length = var(Length), 
+    n_distict_color = n_distinct(Color)
+    ) 
+
+# to create a summery respective to same fields above within each egg color.
+BirdNest %>% 
+  group_by(Color) %>% 
+  summarise(
+    mean_length = mean(Length), 
+    var_Length = var(Length), 
+    n_distict_color = n_distinct(Color)
+    ) 
+
+```
+
+### group by
+
+`group_by()` and `summarise()` together can create a split-apply-combine analysis. group_by() splits the data into groups, `summarise()` provides summary function in each group and the summary for each subgroups are combined and returned.
+
+[Note: Adding multiple variables in group_by() will return a summary with grouping by adding order.]{.underline}
+
+```{r}
+# create summary about mean and variance of legnth, number of distinct location by color and nesttype
+
+BirdNest %>% 
+  group_by(Color,Nesttype) %>% 
+  summarise(
+    mean_length = mean(Length), 
+    num_obs = n(), 
+    n_distict_location = n_distinct(Location)
+    )
+```
+
+**Try Out:**
+
+create a summary about the largest ratio `(ratio = Nestling / Totcare)` by nest type (excluding "`cavity`" category) and present the result in a descending order?
+
+```{r , echo=FALSE}
+BirdNest %>% 
+  filter(!grepl("cavity",Nesttype)) %>% 
+  mutate(ratio = Nestling / Totcare) %>% 
+  group_by(Nesttype) %>% 
+  summarise(max_ratio = max(ratio, na.rm=T)) %>%
+  arrange(desc(max_ratio)) 
+```
+
+# Data Visualization
+
+We are going to use the package of ggplot2 based on *The Grammar of Graphics* by [Leland Wilkinson](https://www.cs.uic.edu/~wilkinson/TheGrammarOfGraphics/GOG.html). He is very influential in R programming - he is also the author of the "tidyverse.\
+ggplot2 is probably the MOST popular plotting package in R, and heavily influences graphing grammars in other languages, notably python and js.
+
+## Format
+
+1.  start with ggplot function - specify data and "aesthetics"
+2.  add "geoms" which are the type of plot (points, lines, bars, etc)
+3.  add "scales" which further specify the aesthetics: axes, colors, sizes
