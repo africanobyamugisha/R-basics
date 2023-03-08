@@ -1,23 +1,10 @@
 ---
-title: "R from data Import, summary statistics, Wrangling and plots"
-runtime: shiny
-output: 
-  html_document:
-    code_folding: show
-    theme:
-      color-contrast-warnings: false
-      bg: "#202123"
-      fg: "#B8BCC2"
-      primary: "#EA80FC"
-      secondary: "#00DAC6"
-      base_font:
-        google: Prompt
-      heading_font:
-        google: Proza Libre
+title: "R"
+author: "Africano"
+date: "2023-03-08"
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
-bslib::bs_themer()
-if (requireNamespace("thematic")) 
-  thematic::thematic_rmd(font = "auto")
+knitr::opts_chunk$set(echo = TRUE)
 ```
