@@ -1,0 +1,81 @@
+---
+title: "Practice 7/3/2023"
+author: "Africano"
+date: "2023-03-07"
+output: html_document
+---
+
+# Introduction
+
+Practice of 7th March 2023
+Data: Finca December MSE data
+
+# Data Import
+```{r import}
+dt_finca <- readxl::read_excel("FINCA Data Dec 2022.xlsx")
+```
+
+# explore data
+```{r explore}
+library(dplyr)
+skimr::skim(dt_finca)[c(1,2,3,5,12,13)]
+```
+
+# remove columns
+```{r}
+dt_clean <- dt_finca %>% 
+  select(-c(id, Date_of_birth, created, Rural_urban,Loan_ID,Borrower_ID))
+
+colnames(dt_clean)
+
+str(dt_clean)
+
+dt_clean$Gender <-  case_when(
+  dt_clean$Gender == "F" ~ "Female",
+  dt_clean$Gender == "M" ~ "Male"
+  )%>% as.factor()
+
+dt_clean$Loan_term_value
+
+#load the text mining package
+library(tm)
+library(stringi)
+
+
+word_to_remove = c("Month","s")#words to remove
+dt_clean$Loan_term_value <- removeWords(dt_clean$Loan_term_value, word_to_remove)#Remove stopwords
+
+# convert character vector to corpus object
+Tenure_of_loan_corpus <- Corpus(VectorSource(dt_clean$Loan_term_value))
+# remove punctuation
+Tenure_of_loan_corpus <- tm_map(Tenure_of_loan_corpus, removePunctuation)
+# add back to data frame
+dt_clean$Loan_term_value <- sapply(Tenure_of_loan_corpus, as.character)
+#convert to numeric
+dt_clean$Loan_term_value <- dt_clean$Loan_term_value %>% as.numeric()
+
+dt_clean$Loan_amount <- dt_clean$Loan_amount %>% as.numeric()
+dt_clean$Date_of_loan_issue <- dt_clean$Date_of_loan_issue %>% as.Date()
+dt_clean$Number_of_employees <- dt_clean$Number_of_employees %>% as.integer()
+
+
+dt_clean$Loan_amount <- dt_clean$Loan_amount %>% as.numeric()
+ggplot(dt_clean) +
+aes(x = Number_of_employees) +
+   geom_histogram(bins = 30, fill = "#0c4c8a") +
+   theme_minimal()
+# # #Check distribution of number of employees using boxplot
+ ggplot(pride_dt) +
+   aes(x = Number_of_employees) +
+  geom_boxplot(fill = "#0c4c8a") +
+   theme_minimal()
+
+ dt_clean %>% 
+   ggplot(aes(y = dt_clean$Loan_amount))+
+   geom_boxplot()
+```
+
+
+
+
+
